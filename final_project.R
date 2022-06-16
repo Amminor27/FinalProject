@@ -36,6 +36,10 @@ df_unemployment$Avg <- Avg
 ##Add unemployment average by year to dataframe 
 
 str(df_unemployment)
+##Examining data
+
+str(df_recidivism4)
+##Examining data
 
 df_combined = data.frame(df_unemployment$Year, df_unemployment$Avg)
 ##Dataframe for consolidated unemployment and recidivism data
@@ -44,6 +48,7 @@ df_recidivism = as.data.frame.matrix(recidisivm)
 ##Turn recidivism data into data frame
 
 na.omit(df_recidivism)
+##Remove NA
 
 df_recidivism1 <- rename(df_recidivism, c(year_admitted = Fiscal.Year.Admitted, conviction_classification = Convicting.Offense.Classification, conviction_type = Convicting.Offense.Type, conviction_subtype = Convicting.Offense.Subtype, race = Race...Ethnicity, supervision = Level.of.Supervision, prison_admission = Recidivism...Prison.Admission, recidivism_type = Recidivism.Type, days_to_recidivism = Days.to.Recidivism))
 ##Renaming columns
@@ -60,9 +65,29 @@ df_recidivism3
 ##Recoded data
 
 df_recidivism4 <- df_recidivism3[df_recidivism3$Prison_Admission !=0,]
-
-merge(df_combined1, df_recidivism4, by = "Year")
+##Remove rows with non prison admissions
 
 df_combined2 <- merge(df_combined1, df_recidivism4, by = "Year")
+##Joined data sets
 
-df_combined2 <- data.frame.as.csv
+ggplot(df_recidivism4, aes(Conviction_Subtype), y = (Prison_Admission)) + geom_bar(fill = "red") + labs(x = "Conviction Type", y = "Prison Admission") + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+##Plot
+ggplot(df_recidivism4, aes(Prison_Admission)) + geom_bar(fill = "orange")
+##Plot
+ggplot(df_recidivism3, aes(Prison_Admission)) + geom_bar(fill="red")
+##Plot
+ggplot(df_combined2, aes(Race), y=(Prison_Admission)) + geom_boxplot(fill ="blue") + labs(x = "Race", y = "Prison Admission") + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+##Plot 
+
+df_recidivism4 %>%
+  group_by(Conviction_Subtype) %>%
+  tally()
+
+str(df_recidivism4$Conviction_Subtype)
+
+review_data %>%
+  count(df_recidivism4$Conviction_Subtype)
+
+cor.test(df_combined2$Average_Unemployment_Rate, df_recidivism3$Prison_Admission, method = "pearson", use= "complete.obs")
+cor.test(df_recidivism4$Conviction_Subtype, df_recidivism4$Prison_Admission, method = "pearson", use = "complete.obs")
+         
